@@ -1,0 +1,37 @@
+{% extends 'base.html' %} 
+{% block content %}
+
+<h1 class="title">{{header}}</h1>
+
+<form class="mb-5" method="get">
+  <div class="field has-addons">
+    <div class="control">
+      <!--  Our input will search by name of artist  -->
+      <input class="input" type="text" name="title" placeholder="name" />
+    </div>
+    <div class="control">
+      <input class="button is-success" type="submit" value="Search" />
+    </div>
+  </div>
+  <!--  This anchor tag will redirect back to artist list without a query param -->
+  <a class="button is-dark" href="{% url 'project_list' %}">Clear Search</a>
+  <a class="button is-dark" href="{% url 'project_create' %}">Add Project</a>
+</form>
+<div class="gallery">
+  {% for project in projects %}
+  <a href="{% url 'project_detail' project.pk %}">
+    <div class="card">
+      <div class="card-image">
+        <figure class="image is-square">
+          <img src="https://res.cloudinary.com/monday-blogs/w_768,h_384,c_fit/fl_lossy,f_auto,q_auto/wp-blog/2021/02/task-dependencies.jpg" alt="{{project.title}}" />
+        </figure>
+      </div>
+      <div class="card-header">
+        <p class="card-header-title">{{project.title}}</p>
+      </div>
+    </div>
+  </a>
+  {% endfor %}
+</div>
+
+{% endblock %}

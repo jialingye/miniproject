@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load mermaid %}
+{% block content %}
+<div class="main-header">
+    <h1 class="title">{{project.title}}</h1>
+    {% if project.complete %}
+    <div class="icon-text">
+        <span class="icon has-text-info">
+            <i class="fas fa-check-circle"></i>
+        </span>
+        <span>Completed</span>
+    </div>
+    {% endif %}
+
+    <span class="tag is-success is-light">{{project.tag}}</span>
+    <div class="detail__about">
+        <p>{{project.description}}</p>
+    </div>
+    <br>
+    <div class="buttons">
+        <a href="{% url 'project_edit' project.pk %}" class="button is-info">
+            <span class="icon">
+                <i class="fas fa-edit"></i>
+            </span>
+        </a>
+        <a href="{% url 'project_delete' project.pk %}" class="button is-danger">
+            <span class="icon">
+                <i class="fas fa-trash-alt"></i>
+            </span>
+        </a>
+        <span>
+            <div class="dropdown">
+              <div class="dropdown-trigger">
+                <button
+                  class="button"
+                  aria-haspopup="true"
+                  aria-controls="dropdown-menu"
+                >
+                  <span>Add to List</span>
+                  <span class="icon is-small">
+                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                <div class="dropdown-content">
+                  {% for group in groups %}
+              <!-- each playlist becomes a drop
+              down item with the ids needed to add to the join table  -->
+                  <a
+                    href="{% url 'group_project_assoc' group.pk project.pk %}?assoc=add"
+                    class="dropdown-item"
+                  >
+                    {{group.title}}
+                  </a>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </span>
+    </div>
+</div>
+<div class="columns">
+
+   <div class="column">
+    
+    <div class="detail__songs mb-5">
+        <h5 class="title is-3">Mini Projects</h5>
+        
+        <form class="mb-5 miniproject-form" action="{% url 'mini_create' project.pk %}" method="post">
+            {% csrf_token %}
+            <div class="field has-addons">
+                <div class="control">
+                    <input
+                        type="hidden"
+                        name="complete"
+                        min="1"
+                    />
+                </div>
+                <div class="control">
+                    <input
+                        class="input"
+                        type="text"
+                        name="name"
+                        placeholder="Title"
+                        required
+                    />
+                </div>
+                <div class="control">
+                    <input
+                        class="input"
+                        type="text"
+                        name="description"
+                        placeholder="Description"
+                        min="1"
+                        required
+                    />
+                </div>
+                <div class="control">
+                    <select class="input" name="parent">
+                        <option value="">Select Parent</option>
+                        {% for miniproject in project.miniprojects.all %}
+                           <option value="{{miniproject.id}}">{{miniproject.name}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control">
+                    <input class="button is-primary" type="submit" value="Add Mini Project" />
+                </div>
+            </div>
+        </form>
+            
+
+        {% for miniproject in project.miniprojects.all %}
+        <div class="card">
+            <header class="card-header">
+              <p class="card-header-title">
+                {{miniproject.name}}
+              </p>
+              <button class="card-header-icon" aria-label="more options">
+                <span class="icon">
+                  <i class="fas " aria-hidden="true">{{miniproject.parent}}</i>
+                </span>
+              </button>
+            </header>
+            <div class="card-content">
+              <div class="content">
+                {{miniproject.description}}
+                <br>
+                <form class="mb-5" action="{% url 'task_create' project.pk miniproject.pk %}" method="post">
+                    {% csrf_token %}
+                    <div class="field has-addons">
+                        <div class="control">
+                            <input
+                                class="input"
+                                type="text"
+                                name="description"
+                                placeholder="Description"
+                                min="1"
+                                required
+                            />
+                        </div>
+                        
+                        <div class="control">
+                            <input class="button is-primary" type="submit" value="Add Task" />
+                        </div>
+                    </div>
+                    </form>
+                   {% for task in miniproject.task.all %}
+                   <div class="song">
+                    <span>{{forloop.counter}}</span>
+                    <span>{{task.description}}</span>
+                   </div>
+                   {% endfor %}
+              </div>
+            </div>
+            <footer class="card-footer">
+              <a href="#" class="card-footer-item">Edit</a>
+              <a href="{% url 'mini_delete' project.pk miniproject.pk %}" class="card-footer-item">Delete</a>
+            </footer>
+          </div>
+          {% empty %}
+          <article class="message">
+            <div class="message-header">
+              <p>No Miniprojects Available</p>
+            </div>
+          </article>
+      
+          {% endfor %}
+        </div>
+        <br>
+        </div>
+   <div class="column">
+    <h1 class="title">{{project.title}}'s Diagram</h1>
+    <div class="border">
+        {% mermaid mermaid_code %}
+    </div>
+   </div>
+    
+   
+</div>
+
+{% endblock %}
